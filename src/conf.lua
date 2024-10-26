@@ -4,7 +4,7 @@ function love.conf(t)
     t.window.vsync = 1
     t.window.width = 420
     t.window.height = 320
-    t.console = true
+    t.console = false
     
     t.modules.audio = false 
     t.modules.data = true   
@@ -18,9 +18,9 @@ function love.conf(t)
     t.modules.mouse = true  
     t.modules.physics = false   
     t.modules.sound = false 
-    t.modules.system = true 
+    t.modules.system = false 
     t.modules.thread = true 
-    t.modules.timer = true  
+    t.modules.timer = false  
     t.modules.touch = false 
     t.modules.video = false  
     t.modules.window = true 

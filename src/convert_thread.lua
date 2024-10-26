@@ -4,21 +4,11 @@ local content_sounds_path, resource_compiler_path, game_mod_path, game_sounds_pa
 local convertlist_filenames = { }
 
 local function GetFileName(path)
-    local current_idx = #path
-    while(path:sub(current_idx, current_idx) ~= "\\") do
-        current_idx = current_idx - 1
-    end
-
-    return path:sub(current_idx + 1, #path)
+    return path:match("([^\\]*)$")
 end
 
 local function RemoveExtension(name)
-    local current_idx = #name
-    while(name:sub(current_idx, current_idx) ~= ".") do
-        current_idx = current_idx - 1
-    end
-
-    return name:sub(1, current_idx - 1)
+    return name:match("(.+)%.?")
 end
 
 for _, filepath in pairs(convertlist_filepaths) do

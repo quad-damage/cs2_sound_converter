@@ -6,28 +6,6 @@ function string:endsWith(str)
     return self:sub(-#str) == str
 end
 
-function printf(fmt, ...)
-    print(string.format(fmt, ...))
-end
-
-local function GetFileName(path)
-    local current_idx = #path
-    while(path:sub(current_idx, current_idx) ~= "\\") do
-        current_idx = current_idx - 1
-    end
-
-    return path:sub(current_idx + 1, #path)
-end
-
-local function RemoveExtension(name)
-    local current_idx = #name
-    while(name:sub(current_idx, current_idx) ~= ".") do
-        current_idx = current_idx - 1
-    end
-
-    return name:sub(1, current_idx - 1)
-end
-
 function game_manager:init()
     self.game_path = windows:RegGetValueA(windows.HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 730", "InstallLocation")
     if(self.game_path) then
@@ -38,14 +16,14 @@ function game_manager:init()
             self.game_path = self.game_path:sub(1, -23)
         end
     end
-    printf("Game path is: %s", self.game_path)
+    print("Game path is: ", self.game_path)
 
     self.resource_compiler_path = self.game_path .. "game\\bin\\win64\\resourcecompiler.exe"
     if(windows:FileExists(self.resource_compiler_path) == false) then
         return false
     end
 
-    -- Taken by the --game argument to resourcecompiler.exe
+    -- Taken by the -game argument to resourcecompiler.exe
     self.game_mod_path = self.game_path .. "game\\core"
 
     -- /csgo_addons/sound_converter/
@@ -75,7 +53,6 @@ end
 
 function game_manager:update()
     if(#self.convert_list ~= 0) then
-        print(type(self))
         local thread = love.thread.newThread("convert_thread.lua")
         thread:start(self.content_sounds_path, self.resource_compiler_path, self.game_mod_path, self.game_sounds_path, self.convert_list)
         self.convert_list = { }
