@@ -8,7 +8,8 @@ local function GetFileName(path)
 end
 
 local function RemoveExtension(name)
-    return name:match("(.+)%.?")
+    local name_new = name:match("(.+)%.")
+    return (name_new == nil) and name or name_new
 end
 
 for _, filepath in pairs(convertlist_filepaths) do
