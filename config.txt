@@ -1,0 +1,5 @@
+;!@Install@!UTF-8!
+Title="Counter-Strike 2 Sound Converter"
+RunProgram="cs2_sound_converter_love.exe"
+GUIMode="2"
+;!@InstallEnd@!

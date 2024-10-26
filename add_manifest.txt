@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=    cs2_sound_converter.exe
+SaveAs= cs2_sound_converter_manifest.exe
+Log=    CONSOLE
+[COMMANDS]
+-addoverwrite manifest.xml, MANIFEST,1
