@@ -1,4 +1,5 @@
 local ffi = require("ffi")
+local logger = require("logger")
 
 local TRUE = 1
 local FALSE = 0
@@ -198,6 +199,8 @@ end
 
 function windows:EnableVirtualTerminalProcessing()
     local std_handle = self:GetStdHandle(self.STD_OUTPUT_HANDLE)
+    if(std_handle == nil) then return end
+
     local console_mode = bit.bor(self:GetConsoleMode(std_handle), self.ENABLE_VIRTUAL_TERMINAL_PROCESSING)
     self:SetConsoleMode(std_handle, console_mode)
 end
