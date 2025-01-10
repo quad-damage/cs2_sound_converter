@@ -16,5 +16,10 @@ Building this utility requires [Love2D](https://love2d.org/), [7-Zip](https://ww
 2) Run ``build.bat`` to compile the project into an executable.
 3) Alternatively, run ``run.bat`` to execute the converter directly without building.
 
+## Troubleshooting
+Create a shortcut to ``cs2_sound_converter.exe`` and add ``--console`` to the Target field.
+
+This will print debug information to a console window.
+
 ## Contributing
 Feel free to submit bug reports, feature requests, or contribute via pull requests.

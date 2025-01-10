@@ -104,11 +104,17 @@ ffi.cdef([[
     BOOL ReadFile(HANDLE hFile, LPVOID lpBuffer, DWORD nNumberOfBytesToRead, LPDWORD lpNumberOfBytesRead, LPVOID lpOverlapped);
 
     DWORD WaitForSingleObject(HANDLE hHandle, DWORD dwMilliseconds);
+
+    HANDLE GetStdHandle(DWORD nStdHandle);
+    BOOL GetConsoleMode(HANDLE hConsoleHandle, DWORD* lpMode);
+    BOOL SetConsoleMode(HANDLE hConsoleHandle, DWORD dwMode);
+
 ]])
 
 local comdlg32 = ffi.load("comdlg32.dll")
 local shlwapi = ffi.load("shlwapi.dll")
 local shell32 = ffi.load("Shell32.dll")
+local kernel32 = ffi.load("kernel32.dll")
 
 local windows = { 
     -- Predefined Keys - https://learn.microsoft.com/en-us/windows/win32/sysinfo/predefined-keys
@@ -159,7 +165,42 @@ local windows = {
     CREATE_NO_WINDOW    =   0x08000000, -- The process is a console application that is being run without a console window. Therefore, the console handle for the application is not set. This flag is ignored if the application is not a console application, or if it is used with either CREATE_NEW_CONSOLE or DETACHED_PROCESS.
 
     INFINITE = 4294967295, -- Taken straight from Visual Studio
+
+    -- https://learn.microsoft.com/en-us/windows/console/getstdhandle
+    STD_OUTPUT_HANDLE = -11,
+
+    -- https://learn.microsoft.com/en-us/windows/console/getconsolemode
+    ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004 -- When writing with WriteFile or WriteConsole, characters are parsed for VT100 and similar control character sequences that control cursor movement, color/font mode, and other operations that can also be performed via the existing Console APIs. 
 }
+
+function windows:GetStdHandle(nStdHandle)
+    return ffi.C.GetStdHandle(nStdHandle)
+end
+
+function windows:GetConsoleMode(hConsoleHandle)
+    local lpMode = ffi.new("DWORD[1]")
+    if(kernel32.GetConsoleMode(hConsoleHandle, lpMode) ~= 0) then
+        return lpMode[0]
+    end
+
+    error("kernel32.GetConsoleMode returned 0")
+    return 0
+end
+
+function windows:SetConsoleMode(hConsoleHandle, dwMode)
+    if(kernel32.SetConsoleMode(hConsoleHandle, dwMode) ~= 0) then
+        return True
+    end
+
+    error("kernel32.SetConsoleMode returned 0")
+    return False
+end
+
+function windows:EnableVirtualTerminalProcessing()
+    local std_handle = self:GetStdHandle(self.STD_OUTPUT_HANDLE)
+    local console_mode = bit.bor(self:GetConsoleMode(std_handle), self.ENABLE_VIRTUAL_TERMINAL_PROCESSING)
+    self:SetConsoleMode(std_handle, console_mode)
+end
 
 function windows:RegGetValueA(hkey, lpSubKey, lpValue)
     local pvData_len = 1024
@@ -251,12 +292,12 @@ function windows:CreateProcess_WaitForFinish_ReadOut(cmd)
     security_attributes[0].lpSecurityDescriptor = ffi.cast("void*", NULL);
 
     if(ffi.C.CreatePipe(childprocess_out_rd, childprocess_out_wr, security_attributes, 0) == 0) then
-        print("Failed to create pipe.")
+        logger:error("Failed to create pipe.")
         return false, nil
     end
 
     if(ffi.C.SetHandleInformation(childprocess_out_rd[0], self.HANDLE_FLAG_INHERIT, 0) == 0) then
-        print("Failed to set handle information. ", ffi.C.GetLastError())
+        logger:error("Failed to set handle information. %s", ffi.C.GetLastError())
         return false, nil
     end
 
@@ -279,7 +320,7 @@ function windows:CreateProcess_WaitForFinish_ReadOut(cmd)
         NULL,
         startup_info,
         process_information ) == 0) then
-            print("CreateProcess failed. ", ffi.C.GetLastError())
+            logger:error("CreateProcess failed. %s", ffi.C.GetLastError())
 
             return false, nil
     end
@@ -288,7 +329,7 @@ function windows:CreateProcess_WaitForFinish_ReadOut(cmd)
 
     local buffer = ffi.new("char[?]", 4096)
     if(ffi.C.ReadFile(childprocess_out_rd[0], buffer, 4095, NULL, NULL) == 0) then
-        print("ReadFile failed. ", ffi.C.GetLastError())
+        logger:error("ReadFile failed. %s", ffi.C.GetLastError())
         return false, nil
     end
 

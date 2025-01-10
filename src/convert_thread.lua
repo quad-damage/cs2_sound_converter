@@ -1,4 +1,6 @@
 local windows = require("windows")
+local logger = require("logger")
+
 love.window = require("love.window")
 local content_sounds_path, resource_compiler_path, game_mod_path, game_sounds_path, convertlist_filepaths = ...
 local convertlist_filenames = { }
@@ -26,9 +28,9 @@ cmd = string.format("%s -game \"%s\"", cmd, game_mod_path)
 
 local return_status, command_output =  windows:CreateProcess_WaitForFinish_ReadOut(cmd)
 if(return_status) then
-    print(command_output)
+    logger:debug(command_output)
 else
-    print("CreateProcess failed.")
+    logger:error("CreateProcess failed.")
 end
 
 for _, filename in pairs(convertlist_filenames) do

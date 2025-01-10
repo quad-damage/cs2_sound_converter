@@ -1,4 +1,5 @@
 local windows = require("windows")
+local logger = require("logger")
 
 local game_manager = {}
 
@@ -8,7 +9,9 @@ end
 
 function game_manager:init()
     self.game_path = windows:RegGetValueA(windows.HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 730", "InstallLocation")
-    if(self.game_path) then
+    logger:debug("game_path(registry) %s length %d", self.game_path, #self.game_path)
+    
+    if(self.game_path and #self.game_path > 0) then
         self.game_path = self.game_path .. "\\"
     else
         self.game_path = windows:GetOpenFileNameA({"cs2.exe", "cs2.exe"}, "Open Counter-Strike 2 executable")
@@ -16,10 +19,13 @@ function game_manager:init()
             self.game_path = self.game_path:sub(1, -23)
         end
     end
-    print("Game path is: ", self.game_path)
+    logger:debug("game_path(final) %s length %d", self.game_path, #self.game_path)
 
     self.resource_compiler_path = self.game_path .. "game\\bin\\win64\\resourcecompiler.exe"
+    logger:debug("resourcecompiler.exe path %s", self.resource_compiler_path)
     if(windows:FileExists(self.resource_compiler_path) == false) then
+        local retval = windows:GetLastError()
+        logger:error("PathFileExistsA GetLastError is 0x%02x(%d)", retval, retval)
         return false
     end
 

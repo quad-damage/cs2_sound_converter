@@ -1,6 +1,8 @@
 local game_manager = require("game_manager")
 local snow = require("snow")
 local windows = require("windows")
+local logger = require("logger")
+
 local convert_queue = { }
 
 function love.load()
@@ -8,6 +10,8 @@ function love.load()
     
     font = love.graphics.newFont("Roboto-Regular.ttf", 24)
     font_small = love.graphics.newFont("Roboto-Regular.ttf", 12)
+
+    windows:EnableVirtualTerminalProcessing()
 
     if(not game_manager:init()) then
         love.window.showMessageBox("Failed to find resourcecompiler.exe", "Failed to find resourcecompiler.exe in your game folder.\nPlease download the workshop tools and try again.", "error", false)
@@ -30,6 +34,6 @@ end
 
 function love.filedropped(file)
     -- table.insert(file:getFilename())
-    print("added ", file:getFilename())
+    logger:info("Added ", file:getFilename())
     game_manager:convert(file:getFilename())
 end
