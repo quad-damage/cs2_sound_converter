@@ -14,7 +14,6 @@ function love.load()
     windows:EnableVirtualTerminalProcessing()
 
     if(not game_manager:init()) then
-        love.window.showMessageBox("Failed to find resourcecompiler.exe", "Failed to find resourcecompiler.exe in your game folder.\nPlease download the workshop tools and try again.", "error", false)
         love.event.quit(0)
     end
 
@@ -34,6 +33,6 @@ end
 
 function love.filedropped(file)
     -- table.insert(file:getFilename())
-    logger:info("Added ", file:getFilename())
+    logger:info("Added %s", file:getFilename())
     game_manager:convert(file:getFilename())
 end

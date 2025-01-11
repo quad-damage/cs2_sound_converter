@@ -15,14 +15,19 @@ function game_manager:init()
         self.game_path = self.game_path .. "\\"
     else
         self.game_path = windows:GetOpenFileNameA({"cs2.exe", "cs2.exe"}, "Open Counter-Strike 2 executable")
-        if(self.game_path:endsWith("game\\bin\\win64\\cs2.exe")) then
+
+        if(self.game_path and self.game_path:endsWith("game\\bin\\win64\\cs2.exe")) then
             self.game_path = self.game_path:sub(1, -23)
+        else
+            logger:error("No game_path selected in GetOpenFileNameA.")
+            love.window.showMessageBox("Failed to find game path", "Failed to find your game folder.\nUse the file open dialog and select the game's executable.", "error", false)
+            return false
         end
     end
     logger:debug("game_path(final) %s length %d", self.game_path, #self.game_path)
 
     self.resource_compiler_path = self.game_path .. "game\\bin\\win64\\resourcecompiler.exe"
-    logger:debug("resourcecompiler.exe path %s", self.resource_compiler_path)
+    logger:debug("resource_compiler_path(final) %s", self.resource_compiler_path)
     if(windows:FileExists(self.resource_compiler_path) == false) then
         local retval = windows:GetLastError()
         logger:error("PathFileExistsA GetLastError is 0x%02x(%d)", retval, retval)
