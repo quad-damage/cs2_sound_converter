@@ -38,6 +38,7 @@ if exist "build/" ( rmdir /S /Q "build/" )
 mkdir build
 mkdir build\intermediate
 
+copy /V /Y "LICENSE" /B "build\intermediate\LICENSE.txt"
 copy /V /Y "%PATHLOVE%\love.exe" /B "build\intermediate\"
 copy /V /Y "%PATHLOVE%\love.dll" /B "build\intermediate\"
 copy /V /Y "%PATHLOVE%\lua51.dll" /B "build\intermediate\"   
@@ -69,7 +70,7 @@ ResourceHacker.exe -script add_icon.txt
 del cs2_sound_converter.exe
 move cs2_sound_converter_icon.exe cs2_sound_converter.exe
 
-7z.exe a "cs2_sound_converter.7z" cs2_sound_converter.exe love.dll lua51.dll OpenAL32.dll SDL2.dll msvcr120.dll msvcp120.dll mpg123.dll
+7z.exe a "cs2_sound_converter.7z" cs2_sound_converter.exe love.dll lua51.dll OpenAL32.dll SDL2.dll msvcr120.dll msvcp120.dll mpg123.dll LICENSE.txt
 
 copy /V /Y "%PATH7ZIP%\7zS2.sfx" /B 7zS2.sfx
 copy /V /Y "..\..\config.txt" /V config.txt
