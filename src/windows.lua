@@ -226,10 +226,15 @@ function windows:RegGetValueA(hkey, lpSubKey, lpValue)
         if(return_value == self.ERROR_SUCCESS) then
             return ffi.string(pdata)
         elseif(return_value == self.ERROR_MORE_DATA) then
+            logger:warn("Return value: ERROR_MORE_DATA. Current allocation: %s bytes, resizing to %s", pvData_len, pvData_len * 2)
             pvData_len = pvData_len * 2
         elseif(return_value == self.ERROR_FILE_NOT_FOUND) then
+            logger:error("Return value: ERROR_FILE_NOT_FOUND")
+            logger:error("hkey: %s  lpSubKey: %s  lpValue: %s", hkey, lpSubKey, lpValue)
             return nil
         else
+            logger:error("Return value: %x02", return_value)
+            logger:error("hkey: %s  lpSubKey: %s  lpValue: %s", hkey, lpSubKey, lpValue)
             return nil -- TODO: Maybe throw error()?
         end
     end
