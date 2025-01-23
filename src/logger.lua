@@ -73,7 +73,7 @@ local LOG_LEVEL_PREFIX = {
 function logger:printf(log_level, fmt, ...)
     local call_stack = debug.getinfo(3, "Sl")
     local prefix = LOG_LEVEL_color[log_level] .. LOG_LEVEL_PREFIX[log_level] .. color.bg.default .. color.bg.default
-    print(string.format("%s |%s| %s | %s", os.date("%H:%M:%S"), prefix, string.format("%s:%s", call_stack.source:sub(2), call_stack.currentline), string.format(fmt, ...)))
+    print(string.format("%s%s |%s| %s | %s", (color.bg.default .. color.fg.bright_white), os.date("%H:%M:%S"), prefix, string.format("%s:%s", call_stack.source:sub(2), call_stack.currentline), string.format(fmt, ...)))
 end
 
 function logger:debug(fmt, ...) self:printf(LOG_LEVEL.DEBUG, fmt, ...) end

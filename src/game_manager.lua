@@ -9,9 +9,9 @@ end
 
 function game_manager:init()
     self.game_path = windows:RegGetValueA(windows.HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 730", "InstallLocation")
-    logger:debug("game_path(registry) %s length %d", self.game_path, #self.game_path)
     
-    if(self.game_path and #self.game_path > 0) then
+    if(self.game_path ~= nil and #self.game_path > 0) then
+        logger:debug("game_path(registry) %s length %d", self.game_path, #self.game_path)
         self.game_path = self.game_path .. "\\"
     else
         self.game_path = windows:GetOpenFileNameA({"cs2.exe", "cs2.exe"}, "Open Counter-Strike 2 executable")
