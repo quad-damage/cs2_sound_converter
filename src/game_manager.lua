@@ -7,13 +7,45 @@ function string:endsWith(str)
     return self:sub(-#str) == str
 end
 
-function game_manager:init()
-    self.game_path = windows:RegGetValueA(windows.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\cs2", "installpath")
+local function check_registry_path(hkey, lpSubKey, lpValue)
+    local game_path = windows:RegGetValueA(hkey, lpSubKey, lpValue)
     
-    if(self.game_path ~= nil and #self.game_path > 0) then
-        logger:debug("game_path(registry) %s length %d", self.game_path, #self.game_path)
-        self.game_path = self.game_path .. "\\"
-    else
+    -- Check if the key even exists.
+    if(game_path == nil or #game_path == 0) then
+        return false, nil
+    end
+
+    if(not game_path:endsWith("\\")) then
+        game_path = game_path .. "\\"
+    end
+
+    -- Check if resourcecompiler.exe exists.
+    if(not windows:FileExists(game_path .. "game\\bin\\win64\\resourcecompiler.exe")) then
+        return false, nil
+    end
+
+    -- Check if resourcecompiler.dll exists.
+    if(not windows:FileExists(game_path .. "game\\bin\\win64\\resourcecompiler.dll")) then
+        return false, nil
+    end
+
+    return true, game_path
+end
+
+function game_manager:init()
+    local available_keys = {
+        {windows.HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 730", "InstallLocation"},
+        {windows.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\cs2", "installpath"}
+    }
+
+    for _, key in pairs(available_keys) do
+        logger:debug("Checking key %s %s %s", unpack(key))
+        result, self.game_path = check_registry_path(unpack(key))
+
+        if(result) then break end
+    end
+
+    if(self.game_path == nil) then
         self.game_path = windows:GetOpenFileNameA({"cs2.exe", "cs2.exe"}, "Open Counter-Strike 2 executable")
 
         if(self.game_path and self.game_path:endsWith("game\\bin\\win64\\cs2.exe")) then
@@ -24,15 +56,8 @@ function game_manager:init()
             return false
         end
     end
-    logger:debug("game_path(final) %s length %d", self.game_path, #self.game_path)
 
     self.resource_compiler_path = self.game_path .. "game\\bin\\win64\\resourcecompiler.exe"
-    logger:debug("resource_compiler_path(final) %s", self.resource_compiler_path)
-    if(windows:FileExists(self.resource_compiler_path) == false) then
-        local retval = windows:GetLastError()
-        logger:error("PathFileExistsA GetLastError is 0x%02x(%d)", retval, retval)
-        return false
-    end
 
     -- Taken by the -game argument to resourcecompiler.exe
     self.game_mod_path = self.game_path .. "game\\core"
