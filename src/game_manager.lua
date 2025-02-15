@@ -8,7 +8,7 @@ function string:endsWith(str)
 end
 
 function game_manager:init()
-    self.game_path = windows:RegGetValueA(windows.HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 730", "InstallLocation")
+    self.game_path = windows:RegGetValueA(windows.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\cs2", "installpath")
     
     if(self.game_path ~= nil and #self.game_path > 0) then
         logger:debug("game_path(registry) %s length %d", self.game_path, #self.game_path)
