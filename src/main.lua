@@ -14,7 +14,7 @@ function love.load()
     windows:EnableVirtualTerminalProcessing()
 
     if(not game_manager:init()) then
-        love.event.quit(0)
+        error("A fatal error has occured while initializing the game manager.")
     end
 
 end
@@ -32,7 +32,33 @@ function love.draw()
 end
 
 function love.filedropped(file)
-    -- table.insert(file:getFilename())
     logger:info("Added %s", file:getFilename())
     game_manager:convert(file:getFilename())
+end
+
+function love.errorhandler(msg)
+    love["system"] = require("love.system")
+    love["event"] = require("love.event")
+
+    local stack_trace = debug.traceback()
+    local error_message = {
+        "The program has encountered an unrecoverable error, and must now exit.",
+        " ",
+        "================================================================",
+        stack_trace,
+        "================================================================",
+        " ",
+        "For troubleshooting purposes, please copy the displayed traceback by clicking \"Copy\" and",
+        "submit it via our GitHub repository: https://github.com/quad-damage/cs2_sound_converter",
+        "or via Discord: @quadruple",
+        "Thank you for helping us improve the application."
+    }
+    error_message = table.concat(error_message, "\n")
+
+    local error_choice = love.window.showMessageBox("Counter-Strike 2 Sound Converter", error_message, {"Copy", "Exit"}, "error")
+    if(error_choice == 1) then
+        love.system.setClipboardText(stack_trace .. "\n\n" .. table.concat(logger.log, '\n'))
+    end
+
+    love.event.quit()
 end

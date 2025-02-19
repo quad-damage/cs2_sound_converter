@@ -31,6 +31,7 @@ if(return_status) then
     logger:debug(command_output)
 else
     logger:error("CreateProcess failed.")
+    error("CreateProcess failed.")
 end
 
 for _, filename in pairs(convertlist_filenames) do
