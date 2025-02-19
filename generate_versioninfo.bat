@@ -1,7 +1,7 @@
 @echo off
 
 set "PRODUCT_MAJOR_VERSION=1"
-set "PRODUCT_MINOR_VERSION=4"
+set "PRODUCT_MINOR_VERSION=5"
 
 echo: > "build\intermediate\VersionInfo1.rc"
 echo 1 VERSIONINFO >> "build\intermediate\VersionInfo1.rc"
